@@ -1,51 +1,98 @@
 <template>
-  <div class="home" id="#app" >
-       <ul>
-         <li v-for= " (item,index ) in msg "  v-bind:class="{active:item.isActive}"   v-bind:key="index" v-on:click="test(item)" >{{item.name}}</li>
-       </ul>
+  <div class="home" id="app" >
+
+
+    <el-main>  
+    <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2"  class="demo-ruleForm">
+        <el-form-item  prop="username">
+            <label> 用户名 </label>
+          <el-input type="text" v-model="ruleForm2.username" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item  prop="password">
+          <label> 密码 </label>
+          <el-input type="password" v-model="ruleForm2.password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item  prop="code">
+          <label> 验证码 </label>
+          <el-row :gutter="20">
+            <el-col :span="18"><div class="grid-content bg-purple"><el-input v-model.number="ruleForm2.code"></el-input></div></el-col>
+           <el-col :span="6"><div class="grid-content bg-purple"> <el-button type="success">获取验证码</el-button>   </div></el-col>
+         </el-row>
+          
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm('ruleForm2')">登录</el-button>
+        </el-form-item>
+    </el-form>
+    </el-main>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 export default {
-    name:'login',
-    data(){
-        return {msg:[
-          {name:"jessic",isActive:true},
-          {name:"lucy",  isActive:false},
-          {name:"timi",  isActive:false}
-        ]}
-    },
-    //created:在模板渲染成html前调用，即通常初始化某些属性值，然后再渲染成视图
-    created(){
-      console.log("创建了")
-    },
-    //mounted:在模板渲染成html后调用，通常是初始化页面完成后，再对html的dom节点进行一些需要的操作
-    mounted(){
-      console.log("我也不知道")
-    },
-    methods:{
-      test:function(data){
-        console.log(data.name);
-        this.msg.forEach((item,index) => {
-            console.log(index)
-            item.isActive = false;
-        } )
 
-        data.isActive = true
-
+   data() {
+      var checkCode = (rule, value, callback) => {
+        if (!value) {
+          return callback(new Error('验证码不能为空'));
+        }
+        callback();
+      };
+      var validateUsername = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入用户名'));
+        } else {
+          if (this.ruleForm2.username !== '') {
+            this.$refs.ruleForm2.validateField('checkPass');
+          }
+          callback();
+        }
+      };
+      var validatePassword = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        }
+          callback();
+        
+      };
+      return {
+        ruleForm2: {
+          username: '',
+          password: '',
+          code: ''
+        },
+        rules2: {
+          username: [
+            { validator: validateUsername, trigger: 'blur' }
+          ],
+          password: [
+            { validator: validatePassword, trigger: 'blur' }
+          ],
+          code: [
+            { validator: checkCode, trigger: 'blur' }
+          ]
+        }
+      };
+    },
+    methods: {
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            alert('submit!');
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
       }
-    },
-    //父组件通过 属性props向下传递数据给子组件
-    props:{},
-    //watch的作用可以监控一个值的变换，并调用因为变化需要执行的方法。可以通过watch动态改变关联的状态。
-    watch:{}
-}
+    }
+  }
 </script>
 <style lang="scss" scoped>
-.active{
-  background: red;
-}
+
 
 </style>
